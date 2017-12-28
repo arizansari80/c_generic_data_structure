@@ -1,0 +1,32 @@
+// Add Element Function In Set
+
+bool add_in_set(SET *start,const void *data,size_t size,float (*compare)(const void *,const void *));
+
+
+// Remove Element Function In Set
+
+bool delete_in_set(SET *in,void *key,float (*compare)(const void *,const void *));
+
+
+// Search Element Function In Set
+
+bool search_set(const SET in,const void *key,float (*compare)(const void *,const void *));
+
+
+// Print Set Function In Set
+
+void print_set(SET start,void (*display)(const void *));
+
+
+// Set Union Function In Set
+
+void set_union(SET *to,const SET from,size_t size,float (*compare)(const void *,const void *));
+
+
+// Set Intersection Function In Set
+
+void set_intersection(SET to,const SET current_from,size_t size,float (*compare)(const void *,const void *));
+
+// Set Difference Function In Set
+
+void set_difference(Set *source,const Set current_from,float (*compare)(const void *,const void *));
