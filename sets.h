@@ -2,26 +2,50 @@
 #include <stdbool.h>
 
 // Declaring Set structure;
-typedef struct set{
+typedef struct set_node{
 	void * data;
-	struct set *ll;
-	struct set *rl;
+	struct set_node *ll;
+	struct set_node *rl;
+}set_node;
+
+typedef set_node * Set_Node;
+
+typedef struct set{
+	size_t ESize;
+	int ctr;
+	float (*compare)(const void *,const void *);
+	void (*display)(const void *);
+	Set_Node start;
 }set;
 
 typedef set * Set;
 
+void initialize_set(Set *obj,size_t size,float (*compare)(const void *,const void *),void (*display)(const void *)){
+	*obj=(Set)malloc(sizeof(set));
+	(*obj)->ESize=size;
+	(*obj)->ctr=0;
+	(*obj)->compare=compare;
+	(*obj)->display=display;
+	(*obj)->start=NULL;
+}
+
 // Adding Unique Element in Set;
-bool add_in_set(Set *start,const void *data,size_t size,float (*compare)(const void *,const void *)){
-	Set temp=(Set)malloc(sizeof(set));
-	temp->data=malloc(size);
-	memcpy(temp->data,data,size);
+bool add_in_set(Set *start,const void *data){
+	int l;
+	Set_Node temp=(Set_Node)malloc(sizeof(set_node));
+	if((*start)->ESize==0)
+		l=strlen(data)+1;
+	else
+		l=(*start)->ESize;
+	temp->data=malloc(l);
+	memcpy(temp->data,data,l);
 	temp->rl=NULL;
 	temp->ll=NULL;
-	if(*start!=NULL){
-		Set travel=*start;
+	if((*start)->start!=NULL){
+		Set_Node travel=(*start)->start;
 		float r;
 		while(1){
-			r=compare(travel->data,temp->data);
+			r=(*start)->compare(travel->data,temp->data);
 			if(r==0){
 				free(temp->data);
 				free(temp);
@@ -30,6 +54,7 @@ bool add_in_set(Set *start,const void *data,size_t size,float (*compare)(const v
 			else if(r>0)
 				if(travel->ll==NULL){
 					travel->ll=temp;
+					(*start)->ctr++;
 					return true;
 				}
 				else
@@ -37,6 +62,7 @@ bool add_in_set(Set *start,const void *data,size_t size,float (*compare)(const v
 			else
 				if(travel->rl==NULL){
 					travel->rl=temp;
+					(*start)->ctr++;
 					return true;
 				}
 				else
@@ -44,13 +70,14 @@ bool add_in_set(Set *start,const void *data,size_t size,float (*compare)(const v
 		}
 	}
 	else{
-		*start=temp;
+		(*start)->start=temp;
+		(*start)->ctr++;
 		return true;
 	}
 }
 
 // Traversing Set Data Structure;
-void print_set_inorder(Set current_start,void (*display)(const void *),bool *wp){
+void print_set_inorder(Set_Node current_start,void (*display)(const void *),bool *wp){
 	if(current_start==NULL)
 		return;
 	*wp=true;
@@ -60,10 +87,11 @@ void print_set_inorder(Set current_start,void (*display)(const void *),bool *wp)
 	print_set_inorder(current_start->rl,display,wp);
 }
 
-void print_set(Set start,void (*display)(const void *)){
+void print_set(Set start){
+	Set_Node st=start->start;
 	bool wp=false;
 	printf("[ ");
-	print_set_inorder(start,display,&wp);
+	print_set_inorder(st,start->display,&wp);
 	if(wp)
 		printf("\b\b ]\n");
 	else
@@ -73,21 +101,25 @@ void print_set(Set start,void (*display)(const void *)){
 // Returning Set as an Array
 
 // Search Operation in Set
-bool search_set(const Set in,const void *key,float (*compare)(const void *,const void *)){
+bool Search_Set(const Set_Node in,const void *key,float (*compare)(const void *,const void *)){
 	if(in==NULL)
 		return false;
 	int res=compare(in->data,key);
 	if(res==0)
 		return true;
 	else if(res>0)
-		return search_set(in->ll,key,compare);
+		return Search_Set(in->ll,key,compare);
 	else
-		return search_set(in->rl,key,compare);
+		return Search_Set(in->rl,key,compare);
+}
+
+bool search_set(const Set obj,const void *data){
+	return Search_Set(obj->start,data,obj->compare);
 }
 
 // Delete In Sets This Operation is Most Complicated One
 
-void detect_child(Set parent,bool *lc,bool *rc){
+void detect_child(Set_Node parent,bool *lc,bool *rc){
 	if(parent->ll==NULL&&parent->rl==NULL){
 		*lc=false;
 		*rc=false;
@@ -110,7 +142,7 @@ void detect_child(Set parent,bool *lc,bool *rc){
 	}
 }
 
-void minchild(Set *parent,Set *child){
+void minchild(Set_Node *parent,Set_Node *child){
 	if((*child)->ll==NULL)
 		return;
 	*parent=(*parent)->ll;
@@ -120,41 +152,41 @@ void minchild(Set *parent,Set *child){
 
 bool delete_root(Set *in){
 	bool l,r;
-	detect_child(*in,&l,&r);
+	detect_child((*in)->start,&l,&r);
 	if(!l&&!r){
-		*in=NULL;
+		(*in)->start=NULL;
 		return true;
 	}
 	if(!l&&r){
-		*in=(*in)->rl;
+		(*in)->start=(*in)->start->rl;
 		return true;
 	}
 	if(l&&!r){
-		*in=(*in)->ll;
+		(*in)->start=(*in)->start->ll;
 		return true;
 	}
-	Set parent,child;
-	parent=(*in)->rl;
+	Set_Node parent,child;
+	parent=(*in)->start->rl;
 	child=parent->ll;
 	if(child==NULL){
-		(*in)->data=parent->data;
-		(*in)->rl=parent->rl;
+		(*in)->start->data=parent->data;
+		(*in)->start->rl=parent->rl;
 		return true;
 	}
 	else if(child->ll==NULL){
-		(*in)->data=(*in)->rl->ll->data;
-		(*in)->rl->ll=(*in)->rl->ll->rl;
+		(*in)->start->data=(*in)->start->rl->ll->data;
+		(*in)->start->rl->ll=(*in)->start->rl->ll->rl;
 		return true;
 	}
 	else{
 		minchild(&parent,&child);
-		(*in)->data=child->data;
+		(*in)->start->data=child->data;
 		parent->ll=child->rl;
 		return true;
 	}
 }
 
-bool delete_child(Set parent,Set child,bool which){
+bool delete_child(Set_Node parent,Set_Node child,bool which){
 	bool l,r;
 	detect_child(child,&l,&r);
 	if(!l&&!r){
@@ -178,7 +210,7 @@ bool delete_child(Set parent,Set child,bool which){
 			parent->ll=child->ll;
 		return true;	
 	}
-	Set p=child;
+	Set_Node p=child;
 	parent=p->rl;
 	child=parent->ll;
 	if(child==NULL){
@@ -199,13 +231,15 @@ bool delete_child(Set parent,Set child,bool which){
 	}
 }
 
-bool delete_in_set(Set *in,void *key,float (*compare)(const void *,const void *)){
-	if(*in==NULL)
+bool delete_in_set(Set *in,void *key){
+	if((*in)->start==NULL)
 		return false;
-	float res=compare((*in)->data,key);
-	if(res==0)
+	float res=(*in)->compare((*in)->start->data,key);
+	if(res==0){
+		(*in)->ctr--;
 		return delete_root(in);
-	Set parent=*in,child;
+	}
+	Set_Node parent=(*in)->start,child;
 	bool which;
 	if(res>0){
 		child=parent->ll;
@@ -216,9 +250,11 @@ bool delete_in_set(Set *in,void *key,float (*compare)(const void *,const void *)
 		child=parent->rl;
 	}
 	while(child!=NULL){
-		res=compare(child->data,key);
-		if(res==0)
+		res=(*in)->compare(child->data,key);
+		if(res==0){
+			(*in)->ctr--;
 			return delete_child(parent,child,which);
+		}
 		parent=child;
 		if(res>0){
 			child=parent->ll;
@@ -233,42 +269,48 @@ bool delete_in_set(Set *in,void *key,float (*compare)(const void *,const void *)
 }
 
 // Union Operation
-void set_union(Set *to,const Set current_from,size_t size,float (*compare)(const void *,const void *)){
+void Set_Union(Set *to,const Set_Node current_from,size_t size,float (*compare)(const void *,const void *)){
 	if(current_from==NULL)
 		return;
-	set_union(to,current_from->ll,size,compare);
-	if(size==0)//Pass Size=0 for string as Set element
-		add_in_set(to,current_from->data,strlen(current_from->data)+1,compare);
-	else
-		add_in_set(to,current_from->data,size,compare);
-	set_union(to,current_from->rl,size,compare);
+	Set_Union(to,current_from->ll,size,compare);
+	add_in_set(to,current_from->data);
+	Set_Union(to,current_from->rl,size,compare);
+}
+
+void set_union(Set *to,const Set from){
+	if(from->start==NULL)
+		return;
+	Set_Union(to,from->start,(*to)->ESize,(*to)->compare);
 }
 
 // Intersection Operation
-Set set_intersect(Set to,const Set current_from,size_t size,float (*compare)(const void *,const void *)){
-	static Set NEW=NULL;
+void set_intersect(Set *add,Set to,const Set_Node current_from,size_t size,float (*compare)(const void *,const void *)){
 	if(current_from==NULL)
-		return NEW;
-	if(search_set(to,current_from->data,compare))
-		if(size==0)//Pass Size=0 for string as Set element
-			add_in_set(&NEW,current_from->data,strlen(current_from->data)+1,compare);
-		else
-			add_in_set(&NEW,current_from->data,size,compare);
-	set_intersect(to,current_from->ll,size,compare);
-	set_intersect(to,current_from->rl,size,compare);
+		return;
+	if(search_set(to,current_from->data))
+		add_in_set(add,current_from->data);
+	set_intersect(add,to,current_from->ll,size,compare);
+	set_intersect(add,to,current_from->rl,size,compare);
 }
 
-void set_intersection(Set *to,const Set from,size_t size,float (*compare)(const void *,const void *)){
-	*to=set_intersect(*to,from,size,compare);
+void set_intersection(Set *to,const Set from){
+	Set NEW=NULL;
+	initialize_set(&NEW,(*to)->ESize,(*to)->compare,(*to)->display);
+	set_intersect(&NEW,*to,from->start,(*to)->ESize,(*to)->compare);
+	*to=NEW;
 }
 
 // Set Difference
-void set_difference(Set *source,const Set current_from,float (*compare)(const void *,const void *)){
-	if(*source==NULL)
-		return;
+void set_diff(Set *source,const Set_Node current_from,float (*compare)(const void *,const void *)){
 	if(current_from==NULL)
 		return;
-	delete_in_set(source,current_from->data,compare);
-	set_difference(source,current_from->ll,compare);
-	set_difference(source,current_from->rl,compare);
+	delete_in_set(source,current_from->data);
+	set_diff(source,current_from->ll,compare);
+	set_diff(source,current_from->rl,compare);
+}
+
+void set_difference(Set *source,const Set from){
+	if((*source)->start==NULL)
+		return;
+	set_diff(source,from->start,(*source)->compare);
 }
