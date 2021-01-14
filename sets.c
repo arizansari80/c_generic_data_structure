@@ -291,3 +291,22 @@ void set_difference(Set *source,const Set from){
 		return;
 	set_diff(source,from->start,(*source)->compare);
 }
+
+void initialize_set(Set *obj,size_t size,float (*compare)(const void *,const void *),void (*display)(const void *)){
+    *obj=(Set)malloc(sizeof(set));
+    (*obj)->ESize=size;
+    (*obj)->ctr=0;
+    (*obj)->compare=compare;
+    (*obj)->display=display;
+    (*obj)->start=NULL;
+
+
+    // Initializing Member Function
+    (*obj)->InsertInSet = add_in_set;
+    (*obj)->PrintSet = print_set;
+    (*obj)->SearchSet = search_set;
+    (*obj)->DeleteInSet = delete_in_set;
+    (*obj)->SetUnion = set_union;
+    (*obj)->SetIntersection = set_intersection;
+    (*obj)->SetDifference = set_difference;
+}
