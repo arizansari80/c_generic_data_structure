@@ -3,62 +3,113 @@
 #include <string.h>
 #include <stdbool.h>
 #include <limits.h>
+
+#include "util_comparator.h"
+#include "util_display.h"
+
 #define endl puts("")
+#define LEFT_CHILD 0
+#define RIGHT_CHILD 1
+
+typedef bool which_child;
+/*
+    STRING_SET initialize_set(STRING_SET,NULL,NULL);
+    MODIFIED_STRING_SET initialize_set(STRING_SET,YourComparatorFunction,YourDisplayFunction);
+    DEFAULT_SET is INTEGER SET
+    DEFAULT_SET initialize_set(DEFAULT_SET,NULL,NULL);
+*/
+enum
+{
+    STRING_SET = -100,
+    STRING_CASE_INSENSITIVE_SET,
+    MODIFIED_STRING_SET,
+    DEFAULT_SET,
+    CHAR_SET,
+    BYTE_SET,
+    SHORT_SET,
+    INT_SET,
+    LONG_SET,
+    FLOAT_SET,
+    DOUBLE_SET,
+    LONG_DOUBLE_SET,
+    UNSIGNED_INT_SET,
+    UNSIGNED_SHORT_SET,
+    UNSIGNED_LONG_SET,
+    LONG_LONG_SET,
+    UNSIGNED_LONG_LONG_SET
+};
+
+enum
+{
+    SET_UNION = 3,
+    SET_INTERSECTION,
+    SET_DIFFERENCE
+};
 
 // Declaring Set structure;
 typedef struct set_node
 {
-    void * data;
+    void *data;
     struct set_node *ll;
     struct set_node *rl;
 } set_node;
 
-typedef set_node * Set_Node;
+typedef set_node *Set_Node;
+
+
+// Set Traversal Section JIT Stands for Just In Time
+typedef struct JIT_Set_Stack_Elem
+{
+	Set_Node node;
+	struct JIT_Set_Stack_Elem *next_link;
+} JIT_Set_Stack_Elem;
+
+typedef JIT_Set_Stack_Elem *JIT_Set_Iterator_Stack_Top;
+
+typedef struct
+{
+	Set_Node next_iterator;
+	JIT_Set_Iterator_Stack_Top jit_top;
+} JIT_Set_Iterator;
+
+typedef void *SetTraversalDataRef;
+typedef set_node set_iterator;
+// Set Traversal Section
+
 
 typedef struct set
 {
     size_t ESize;
     int ctr;
-    float (*compare)(const void *,const void *);
+    long double (*compare)(const void *, const void *);
     void (*display)(const void *);
     Set_Node start;
-
-
-    // Member Function
-    bool (*InsertInSet)(struct set **obj,const void *data);
-    void (*PrintSet)(struct set *start);
-    bool (*SearchSet)(const struct set *obj,const void *data);
-    bool (*DeleteInSet)(struct set **in,void *key);
-    void (*SetUnion)(struct set **to,const struct set *from);
-    void (*SetIntersection)(struct set **to,const struct set *from);
-    void (*SetDifference)(struct set **source,const struct set *from);
+    SetTraversalDataRef dataRef;
 } set;
 
-typedef set * Set;
+typedef set *pset;
 
+typedef struct
+{
+    set (*getSet)(size_t size, long double (*compare)(const void *, const void *), void (*display)(const void *));
 
-// Initializing Set Data Structure
-void initialize_set(Set *obj,size_t size,float (*compare)(const void *,const void *),void (*display)(const void *));
+    bool (*addInSet)(pset obj, const void *data);
 
-// Adding Unique Element in Set;
-bool add_in_set(Set *obj,const void *data);
+    void (*printSet)(const set obj);
 
-// Traversing Set Data Structure;
-void print_set(Set start);
+    bool (*searchInSet)(const set obj, const void *data);
 
-// Returning Set as an Array
+    bool (*deleteFromSet)(pset obj, void *key);
 
-// Search Operation in Set
-bool search_set(const Set obj,const void *data);
+    set (*setUnion)(const set seta, const set setb, long *message);
+    set (*setIntersection)(const set seta, const set setb, long *message);
+    set (*setDifference)(const set seta, const set setb, long *message);
 
-// Delete In Sets This Operation is Most Complicated One
-bool delete_in_set(Set *in,void *key);
+    bool (*getIterator)(pset obj, Set_Node iter);
+    bool (*nextIterator)(pset obj, Set_Node iter);
 
-// Union Operation
-void set_union(Set *to,const Set from);
+    void (*destroySet)(pset obj);
+    void (*clearSet)(pset obj);
+} GLOBAL_SET_OBJECT;
 
-// Intersection Operation
-void set_intersection(Set *to,const Set from);
-
-// Set Difference
-void set_difference(Set *source,const Set from);
+// Iterator Implementation is Remaining Please work on it
