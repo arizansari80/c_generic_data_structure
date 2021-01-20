@@ -108,8 +108,8 @@ typedef struct
     bool (*getIterator)(pset obj, Set_Node iter);
     bool (*nextIterator)(pset obj, Set_Node iter);
 
-    void (*destroySet)(pset obj);
-    void (*clearSet)(pset obj);
+    void (*destroySet)(pset obj, void (*addOnsClean)(const void *));
+    void (*clearSet)(pset obj, void (*addOnsClean)(const void *));
 } GLOBAL_SET_OBJECT;
 
 // Iterator Implementation is Remaining Please work on it
