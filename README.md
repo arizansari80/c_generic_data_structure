@@ -9,8 +9,7 @@ Same Way the Maps is also implemented as an <b>Ordered Map</b> using a <b>BST</b
 
 Got the implement idea after using and analyze the working of the <b>qsort</b> function, that can be used to sort any kind of data type , whether it's a primitive data type or user defined datatype by taking a comparator function as one of it's argument an argument, this function can sort any type of data in any way. For reference of <b>qsort</b> see this <a>https://en.wikipedia.org/wiki/Qsort</a>
 
-Sample Program
-For Sample Program Visti <a>https://github.com/arizansari80/c_generic_data_structure/blob/master/main.c</a>
+For Sample Program Visit <a>https://github.com/arizansari80/c_generic_data_structure/blob/master/main.c</a>
 
 Explanation of Set Init Function and it's argument
 
