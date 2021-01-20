@@ -673,12 +673,14 @@ static bool next_iterator(pset obj, Set_Node updatedIterator)
 
 // Destroy Set Object Section
 
-void delete_set_node_post_order(pset obj, Set_Node current_node)
+void delete_set_node_post_order(pset obj, Set_Node current_node, void (*addOnsClean)(const void *))
 {
 	if (current_node == NULL)
 		return;
-	delete_set_node_post_order(obj,current_node->ll);
-	delete_set_node_post_order(obj,current_node->rl);
+	delete_set_node_post_order(obj,current_node->ll,addOnsClean);
+	delete_set_node_post_order(obj,current_node->rl,addOnsClean);
+	if (addOnsClean != NULL)
+		addOnsClean(current_node->data);
 	free(current_node->data);
 	current_node->data = NULL;
 	free(current_node);
@@ -686,9 +688,9 @@ void delete_set_node_post_order(pset obj, Set_Node current_node)
 	obj->ctr--;
 }
 
-void destroy_set_object(pset obj)
+void destroy_set_object(pset obj, void (*addOnsClean)(const void *))
 {
-    delete_set_node_post_order(obj, obj->start);
+    delete_set_node_post_order(obj, obj->start,addOnsClean);
     obj->ctr = 0;
     obj->start = NULL;
     ((JIT_Set_Iterator *)obj->dataRef)->next_iterator = NULL;

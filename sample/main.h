@@ -2,7 +2,7 @@
  * main.h
  *
  *  Created on: 20-Dec-2019
- *      Author: gulameraza
+ *      Author: arizansari80
  */
 
 #ifndef SRC_MAIN_H_
@@ -11,9 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sets.h"
-#include "maps.h"
-#include "c_string.h"
+#include "../sets.h"
+#include "../maps.h"
+#include "../c_string.h"
 
 
 #endif /* SRC_MAIN_H_ */

@@ -36,14 +36,14 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="c_string.h" />
-		<Unit filename="main.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="main.h" />
 		<Unit filename="maps.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="maps.h" />
+		<Unit filename="sample/main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sample/main.h" />
 		<Unit filename="sets.c">
 			<Option compilerVar="CC" />
 		</Unit>

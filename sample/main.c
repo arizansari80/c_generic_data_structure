@@ -2,7 +2,7 @@
  * main.c
  *
  *  Created on: 20-Dec-2019
- *      Author: gulameraza
+ *      Author: arizansari80
  */
 #include "main.h"
 
@@ -250,7 +250,7 @@ void map_display(const void *key,const void *value)
 
 extern const GLOBAL_STRING_OBJECT String;
 
-int main(int argc, char *args[])
+int k_main(int argc, char *args[])
 {
     string str = String.getString();
     puts(str);
